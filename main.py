@@ -18,6 +18,7 @@ game_active = False
 board = [' '] * 9
 current_player = 'X'
 
+commands = [ "To play a game of tic tac toe, command : $game1", "To get inspired, command : $inspire", "To clear chat history, command : $clear (clears last 10", "To clear chat history, command :$clear_all (clears whole history)"]
 
 def get_quote():
   response = requests.get("https://zenquotes.io/api/random")
@@ -36,13 +37,8 @@ async def on_ready():
 async def on_message(message):
 
   if message.content.startswith('$commands'):
-    await message.channel.send(
-      'To play a game of tic tac toe, command : $game1')
-    await message.channel.send('To get inspired, command : $inspire')
-    await message.channel.send(
-      'To clear chat history, command : $clear (clears last 10')
-    await message.channel.send(
-      'To clear chat history, command :$clear_all (clears whole history)')
+    for command in commands:
+      await message.channel.send(command)
 
   global game_active
   global board
