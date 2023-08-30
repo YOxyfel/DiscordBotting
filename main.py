@@ -4,16 +4,31 @@ import json
 import os
 import re
 import time
+import sqlite3
 
 import discord
 from discord.ext import commands
 import requests
 
 #from tictactoe import start_game
+print(db['key1'])
+# look on discord
 
-db['key1'] = "value1"
+#---------------------------0-------DataBase-------0-------------------------------------
+con = sqlite3.connect('Database.db')
+c = con.cursor()
+
+c.execute("""CREATE TABLE users (
+    discord_id INT,
+    discord_username TEXT,
+    win_or_lose TEXT);""")
+
+# in the meanwhile i will look for any database extesntion
+con.commit()
+con.close()
 
 
+#----------------------------1-------Client------1--------------------------------------
 class MyClient(commands.Bot):
 
   def __init__(self, *, intents: discord.Intents):
