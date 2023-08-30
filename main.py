@@ -19,20 +19,17 @@ class MyClient(commands.Bot):
     super().__init__(command_prefix="!", intents=intents)
 
   async def setup_hook(self):
-    self.tree.copy_global_to(
-      guild=discord.Object(id=1145239923033653280))  #ok cool one sec
-    await self.tree.sync(guild=discord.Object(id=1145239923033653280)
-                         )  # what does this line do
+    self.tree.copy_global_to(guild=discord.Object(id=1145239923033653280))
+    await self.tree.sync(guild=discord.Object(id=1145239923033653280))
     print('Main bot synced!')
 
 
 bot = MyClient(intents=discord.Intents.all())
 
 
-#-------------------------- SLASH COMMANDS -----------------------------------------------
+#-------------------------- SLASH COMMANDS ----------------------------------------------
 @bot.tree.command(name="sayhello", description="Makes the bot say hi back!")
-async def hi(interaction: discord.Interaction
-             ):  #what is discord.Interaction what is ctx
+async def hi(interaction: discord.Interaction):
   await interaction.response.send_message(f"Hello! {interaction.user.mention}")
 
 
@@ -58,9 +55,7 @@ async def gay(interaction: discord.Interaction, member: discord.Member):
 
 
 #-----------------------------------------------------------------------------------------
-# leave and i'l ltell you to come back
 last_reply_times = {}
-# alright dealbtw why the fuck is the ram spiking like that is your subscription null in teams?
 options = [
   "To play a game of tic tac toe, command : $game1",
   "To get inspired, command : $inspire",
