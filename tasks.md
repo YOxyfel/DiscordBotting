@@ -1,5 +1,5 @@
 ### Before reading this you should use the markdown tool to preview this properly.
->1. Making a database in replit and connecting it to discord
+>### 1. Making a database in replit and connecting it to discord
 >
 > ***Difficulty: Medium***
 >
