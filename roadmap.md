@@ -1,0 +1,6 @@
+1. The TicTacToe game + UI - (*Pending*)
+2. Ban and Kick commands - (*To be done*)
+3. Discord Cogs - (*To be done*)
+4. Basic discord commands - (*To be done*)
+5. Custom commands - (*To be done*)
+6. Template for discord bots - (*To be done*)
