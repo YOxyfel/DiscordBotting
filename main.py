@@ -1,4 +1,3 @@
-from replit import db
 import asyncio
 import json
 import os
@@ -9,13 +8,12 @@ import sqlite3
 import discord
 from discord.ext import commands
 import requests
-
 #from tictactoe import start_game
-print(db['key1'])
+
 # look on discord
 
 #---------------------------0-------DataBase-------0-------------------------------------
-con = sqlite3.connect('Database.db')
+con = sqlite3.connect('dbs/1.db')
 c = con.cursor()
 
 c.execute("""CREATE TABLE users (
