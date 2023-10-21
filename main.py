@@ -29,6 +29,7 @@ con.close()
 
 
 #----------------------------1-------Client------1--------------------------------------
+
 class MyClient(commands.Bot):
 
   def __init__(self, *, intents: discord.Intents):
@@ -40,13 +41,19 @@ class MyClient(commands.Bot):
     await self.tree.sync(guild=discord.Object(id=1145239923033653280))
     print('Main bot synced!')
 
-
 bot = MyClient(intents=discord.Intents.all())
-
 
 @bot.command(aliases=['p'])
 async def heya(ctx):
   await ctx.send('hi')
+
+#--------------------------------On Ready event-----------------------------------------
+
+@bot.event
+async def on_ready():
+  print(f"Logged on as {bot.user}")
+
+#--------------------------------------------------------------------------------------
 
 
 #-------------------------- Hello Command (Prefix) -------------------------------------------
@@ -110,7 +117,6 @@ class Questionnaire(ui.Modal, title='Questionnaire Response'):
 @bot.tree.command(name='ticket', description='Gives information about that user')
 async def whois2(interaction: discord.Interaction):
   await interaction.response.send_modal(Questionnaire())
-
 
 #----------------------------------------------------------------------------------------
 
