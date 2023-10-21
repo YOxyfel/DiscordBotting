@@ -6,20 +6,22 @@ import time
 import sqlite3
 
 import discord
+from discord import app_commands
+from discord import ui
 from discord.ext import commands
 import requests
 #from tictactoe import start_game
-
+#
 # look on discord
 
 #---------------------------0-------DataBase-------0-------------------------------------
 con = sqlite3.connect('dbs/1.db')
 c = con.cursor()
 
-c.execute("""CREATE TABLE users (
-    discord_id INT,
-    discord_username TEXT,
-    win_or_lose TEXT);""")
+#c.execute("""CREATE TABLE users (
+#    discord_id INT,
+#    discord_username TEXT,
+#    win_or_lose TEXT);""")
 
 # in the meanwhile i will look for any database extesntion
 con.commit()
@@ -31,6 +33,7 @@ class MyClient(commands.Bot):
 
   def __init__(self, *, intents: discord.Intents):
     super().__init__(command_prefix="!", intents=intents)
+    intents.message_content = True
 
   async def setup_hook(self):
     self.tree.copy_global_to(guild=discord.Object(id=1145239923033653280))
@@ -41,20 +44,103 @@ class MyClient(commands.Bot):
 bot = MyClient(intents=discord.Intents.all())
 
 
-#-------------------------- SLASH COMMANDS ----------------------------------------------
+@bot.command(aliases=['p'])
+async def heya(ctx):
+  await ctx.send('hi')
+
+
+#-------------------------- Hello Command (Prefix) -------------------------------------------
+
 @bot.tree.command(name="sayhello", description="Makes the bot say hi back!")
-async def hi(interaction: discord.Interaction):
-  await interaction.response.send_message(f"Hello! {interaction.user.mention}")
+async def hi(ctx):
+  await ctx.send("hi")
+
+#-------------------------------------------------------------------------------------------
+
+#--------------------------------Ban Command------------------------------------------------
+
+@bot.tree.command(name="ban", description="Bans someone!")
+@app_commands.checks.has_permissions(ban_members=True)
+async def Ban(interaction: discord.Interaction, user: discord.User):
+  guild = interaction.guild
+  await interaction.response.send_message(f"Banned {user}.")
+  await guild.ban(user)
+
+#-------------------------------------------------------------------------------------------
+
+#--------------------------------Unban Command----------------------------------------------
+
+@bot.tree.command(name="unban")
+@app_commands.checks.has_permissions(ban_members=True)
+async def unban(interaction: discord.Interaction, user: discord.User):
+  
+  banlist = []
+  guild = interaction.guild
+
+  #putting guild bans into a list
+  for i in guild.bans():
+    banlist.append(i)
+
+  #looking for the banned user in the list
+  for o in banlist:
+    
+    if user in o:
+    
+      await guild.unban(user)
+      await interaction.response.send_message(f"Unbanned {user}.")
+  
+    else:
+      await interaction.response.send_message(f'{user} is not in the ban list.')
+
+#---------------------------------------------------------------------------------------
+
+#------------------------------Modal/Ticket----------------------------------------------------
+
+class Questionnaire(ui.Modal, title='Questionnaire Response'):
+
+  name = ui.TextInput(label='Name')
+  answer = ui.TextInput(label='Answer', style=discord.TextStyle.paragraph)
+
+  async def on_submit(self, interaction: discord.Interaction):
+    username = discord.Member.display_name
+    await interaction.response.send_message(
+        f'Thanks for submitting a ticket, {username}!')
 
 
-@bot.tree.command(name="tictactoe", description="Play a TicTacToe game!")
-async def tictactoe(interaction: discord.Interaction):
-  await interaction.response.send_message(f"Hello2! {interaction.user.mention}"
-                                          )
+@bot.tree.command(name='ticket', description='Gives information about that user')
+async def whois2(interaction: discord.Interaction):
+  await interaction.response.send_modal(Questionnaire())
 
 
+#----------------------------------------------------------------------------------------
+
+#-----------------------------WhoIs Command---------------------------------------------
+
+@bot.tree.command(name='whois',
+                  description='Gives information about that user')
+async def whois(interaction: discord.Interaction, member: discord.Member):
+
+  name = member.display_name
+  joindate = member.joined_at
+  creationdate = member.created_at
+  fjoindate = discord.utils.format_dt(joindate, style="F")
+  fcreatedate = discord.utils.format_dt(creationdate, style="F")
+
+  await interaction.response.send_message(
+      f"{name} joined at: {fjoindate} \nAccount was created at: {fcreatedate}")
+
+#---------------------------------------------------------------------------------------
+
+#tableflip variant 1
+@bot.tree.command(name="tableflip1",
+                  description="Makes the bot flip the table 1!")
+async def tableFlip1(interaction: discord.Interaction):
+  await interaction.response.send_message(f"(╯°□°)╯︵ ┻━┻")
+
+
+#Survival Timer
 @bot.tree.context_menu(name='Survival time!')
-async def gay(interaction: discord.Interaction, member: discord.Member):
+async def survival(interaction: discord.Interaction, member: discord.Member):
   joined_time = member.joined_at
   current_time = discord.utils.utcnow()
   time_duration = current_time - joined_time
@@ -70,13 +156,6 @@ async def gay(interaction: discord.Interaction, member: discord.Member):
 
 #-----------------------------------------------------------------------------------------
 last_reply_times = {}
-options = [
-  "To play a game of tic tac toe, command : $game1",
-  "To get inspired, command : $inspire",
-  "To clear chat history, command : $clear (clears last 10",
-  "To clear chat history, command :$clear_all (clears whole history)"
-]
-greetings = ['hello', 'hi', 'yo', 'wassup', 'hey', 'hoi']
 
 
 @bot.command(name='hello')
@@ -84,72 +163,23 @@ async def hello(ctx):
   await ctx.send('Hello, I am a bot!')
 
 
-def get_quote():
-  response = requests.get("https://zenquotes.io/api/random")
-  json_data = json.loads(response.text)
+# def get_quote():
+#   response = requests.get("https://zenquotes.io/api/random")
+#   json_data = json.loads(response.text)
 
-  quote = json_data[0]['q'] + " -" + json_data[0]['a']
-  return quote
+#   quote = json_data[0]['q'] + " -" + json_data[0]['a']
+#   return quote
 
+# async def clear_last_10_messages(channel):
+#   async for msg in channel.history(limit=11):
+#     await msg.delete()
+#     await asyncio.sleep(1)  # Add a delay of 1 second between deletions
+#   await channel.send('Cleared the last 10 messages.')
 
-@bot.event
-async def on_ready():
-  print('We have logged in as {0.user}'.format(bot))
-
-
-@bot.event
-async def on_message(message):
-
-  if message.author == bot.user:
-    return
-
-  content = message.content.lower()
-
-  #  if content.message.startswith('$tictactoe'):
-  #    await start_game(content)
-
-  #Greeting with 10s cooldown
-  if re.search(r'\b(?:' + '|'.join(greetings) + r')\b', content):
-    user_id = message.author.id
-    current_time = time.time()
-
-    # Check if the user's last reply time is available and if the timeout has passed
-    if user_id in last_reply_times and current_time - last_reply_times[
-        user_id] < 60:
-      return
-
-    last_reply_times[user_id] = current_time
-    await message.channel.send(f"Hello, {message.author.mention}!")
-
-  #Write a random quote
-  if content.startswith('$inspire'):
-    quote = get_quote()
-    await message.channel.send(quote)
-
-  #Clear last 10 messages or all messages
-  if content.startswith('$clear'):
-    if message.channel.permissions_for(message.author).manage_messages:
-      if content == '$clear':
-        await clear_last_10_messages(message.channel)
-      elif content == '$clear_all':
-        await clear_entire_history(message.channel)
-    else:
-      await message.channel.send(
-        "You don't have permission to use this command.")
-
-
-async def clear_last_10_messages(channel):
-  async for msg in channel.history(limit=11):
-    await msg.delete()
-    await asyncio.sleep(1)  # Add a delay of 1 second between deletions
-  await channel.send('Cleared the last 10 messages.')
-
-
-async def clear_entire_history(channel):
-  async for msg in channel.history():
-    await msg.delete()
-    await asyncio.sleep(1)  # Add a delay of 1 second between deletions
-  await channel.send('Cleared the entire message history.')
-
+# async def clear_entire_history(channel):
+#   async for msg in channel.history():
+#     await msg.delete()
+#     await asyncio.sleep(1)  # Add a delay of 1 second between deletions
+#   await channel.send('Cleared the entire message history.')
 
 bot.run(os.environ['TOKEN'])
