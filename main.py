@@ -8,7 +8,9 @@ import sqlite3
 import discord
 from discord import app_commands
 from discord import ui
-from discord.ext import commands
+from discord import Embed
+from discord.ext import command
+from discord.ext import buttons
 import requests
 #from tictactoe import start_game
 #
@@ -27,8 +29,8 @@ c = con.cursor()
 con.commit()
 con.close()
 
-
 #----------------------------1-------Client------1--------------------------------------
+
 
 class MyClient(commands.Bot):
 
@@ -41,30 +43,37 @@ class MyClient(commands.Bot):
     await self.tree.sync(guild=discord.Object(id=1145239923033653280))
     print('Main bot synced!')
 
+
 bot = MyClient(intents=discord.Intents.all())
+
 
 @bot.command(aliases=['p'])
 async def heya(ctx):
   await ctx.send('hi')
 
+
 #--------------------------------On Ready event-----------------------------------------
+
 
 @bot.event
 async def on_ready():
   print(f"Logged on as {bot.user}")
 
+
 #--------------------------------------------------------------------------------------
 
-
 #-------------------------- Hello Command (Prefix) -------------------------------------------
+
 
 @bot.tree.command(name="sayhello", description="Makes the bot say hi back!")
 async def hi(ctx):
   await ctx.send("hi")
 
+
 #-------------------------------------------------------------------------------------------
 
 #--------------------------------Ban Command------------------------------------------------
+
 
 @bot.tree.command(name="ban", description="Bans someone!")
 @app_commands.checks.has_permissions(ban_members=True)
@@ -73,14 +82,16 @@ async def Ban(interaction: discord.Interaction, user: discord.User):
   await interaction.response.send_message(f"Banned {user}.")
   await guild.ban(user)
 
+
 #-------------------------------------------------------------------------------------------
 
 #--------------------------------Unban Command----------------------------------------------
 
+
 @bot.tree.command(name="unban")
 @app_commands.checks.has_permissions(ban_members=True)
 async def unban(interaction: discord.Interaction, user: discord.User):
-  
+
   banlist = []
   guild = interaction.guild
 
@@ -90,18 +101,21 @@ async def unban(interaction: discord.Interaction, user: discord.User):
 
   #looking for the banned user in the list
   for o in banlist:
-    
+
     if user in o:
-    
+
       await guild.unban(user)
       await interaction.response.send_message(f"Unbanned {user}.")
-  
+
     else:
-      await interaction.response.send_message(f'{user} is not in the ban list.')
+      await interaction.response.send_message(f'{user} is not in the ban list.'
+                                              )
+
 
 #---------------------------------------------------------------------------------------
 
 #------------------------------Modal/Ticket----------------------------------------------------
+
 
 class Questionnaire(ui.Modal, title='Questionnaire Response'):
 
@@ -111,31 +125,36 @@ class Questionnaire(ui.Modal, title='Questionnaire Response'):
   async def on_submit(self, interaction: discord.Interaction):
     username = discord.Member.display_name
     await interaction.response.send_message(
-        f'Thanks for submitting a ticket, {username}!')
+      f'Thanks for submitting a ticket, {username}!')
 
 
-@bot.tree.command(name='ticket', description='Gives information about that user')
+@bot.tree.command(name='ticket',
+                  description='Gives information about that user')
 async def whois2(interaction: discord.Interaction):
   await interaction.response.send_modal(Questionnaire())
+
 
 #----------------------------------------------------------------------------------------
 
 #-----------------------------WhoIs Command---------------------------------------------
 
+
 @bot.tree.command(name='whois',
                   description='Gives information about that user')
-async def whois(interaction: discord.Interaction, member: discord.Member):
+async def whois(interaction: discord.Interaction, member: discord.User):
 
   name = member.display_name
   joindate = member.joined_at
   creationdate = member.created_at
   fjoindate = discord.utils.format_dt(joindate, style="F")
   fcreatedate = discord.utils.format_dt(creationdate, style="F")
+  embedo=discord.Embed(title=f"{member}", description=f"{name} joined at {fjoindate} \nAccount created at {fcreatedate}", color=0xFF5733)
+  embedo.set_footer(text="hi")
+  await interaction.response.send_message(embed=embedo)
 
-  await interaction.response.send_message(
-      f"{name} joined at: {fjoindate} \nAccount was created at: {fcreatedate}")
 
 #---------------------------------------------------------------------------------------
+
 
 #tableflip variant 1
 @bot.tree.command(name="tableflip1",
