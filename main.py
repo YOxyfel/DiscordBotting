@@ -8,9 +8,9 @@ import sqlite3
 import discord
 from discord import app_commands
 from discord import ui
+from discord.ui import Button, View
 from discord import Embed
-from discord.ext import command
-from discord.ext import buttons
+from discord.ext import commands
 import requests
 #from tictactoe import start_game
 #
@@ -62,12 +62,39 @@ async def on_ready():
 
 #--------------------------------------------------------------------------------------
 
-#-------------------------- Hello Command (Prefix) -------------------------------------------
+#-------------------------- Invite Command -------------------------------------------
 
+class InvBtn(discord.ui.View):
+  def __init__(self, inv: str):
+    super().__init__()
+    self.inv = inv
+    
+    self.add_item(Button(style=discord.ButtonStyle.secondary, label="Invite Link", url=self.inv))
 
-@bot.tree.command(name="sayhello", description="Makes the bot say hi back!")
-async def hi(ctx):
-  await ctx.send("hi")
+  @discord.ui.button(style=discord.ButtonStyle.primary, label="Hi")
+  
+  async def btn(self, interaction: discord.Interaction, button: Button):
+    await interaction.response.send_message(self.inv)
+  
+@bot.tree.command(name="invite", description="Sends an invite link.")
+
+async def hi(interaction: discord.Interaction):
+  #Don't forget to add max age, max uses, etc
+  invite = await interaction.channel.create_invite()
+  await interaction.response.send_message(view=InvBtn(str(invite)))
+  
+  
+  
+  
+  
+  # view = View()
+# but1 = Button(style=discord.ButtonStyle.primary, label="Yes")
+# await but1.callback
+# but2 = Button(style=discord.ButtonStyle.danger, label="No")
+# view.add_item(but1)
+# view.add_item(but2)
+#  await interaction.response.send_message("Are you gay?", view=view)
+  
 
 
 #-------------------------------------------------------------------------------------------
@@ -148,7 +175,7 @@ async def whois(interaction: discord.Interaction, member: discord.User):
   creationdate = member.created_at
   fjoindate = discord.utils.format_dt(joindate, style="F")
   fcreatedate = discord.utils.format_dt(creationdate, style="F")
-  embedo=discord.Embed(title=f"{member}", description=f"{name} joined at {fjoindate} \nAccount created at {fcreatedate}", color=0xFF5733)
+  embedo=discord.Embed(title=f"{member}", description=f"{name} joined at {fjoindate} \nAccount created at {fcreatedate}", color=0x302c34)
   embedo.set_footer(text="hi")
   await interaction.response.send_message(embed=embedo)
 
